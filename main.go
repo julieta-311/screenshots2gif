@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"os/signal"
-	"path/filepath"
 	"time"
 
 	"github.com/julieta-311/screenshots2gif/animate"
@@ -30,7 +29,7 @@ func main() {
 	log.Printf("Operation will time out if not done after %v minutes.\n", cfg.timeOutMinutes)
 	log.Printf("Taking screenshots to generate %d seconds long gif at %d fps.\n", cfg.durationSeconds, cfg.fps)
 	log.Printf("Selected screen: %d (main screen = 0).\n", cfg.screen)
-	log.Printf("Output directory: %s.\n To cancel hit ctrl + c.", cfg.imgSaveDir)
+	log.Printf("Output directory: %s.\n To cancel hit ctrl + c.", cfg.outputDir)
 
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
@@ -71,20 +70,26 @@ func run(ctx context.Context, cfg config) {
 	delayBetweenShots := time.Duration(10) * time.Millisecond * time.Duration(animDelay)
 	nFrames := cfg.fps * cfg.durationSeconds
 
+	imgSaveDir, err := os.MkdirTemp("", "*-screenshots")
+	if err != nil {
+		log.Fatalf("failed to create temp dir: %v", err)
+	}
+	defer cleanUpDir(ctx, imgSaveDir)
+
 	s := capture.ScreenShot{}
-	if err = s.GetAllScreenshots(ctx, cfg.screen, cfg.imgSaveDir, delayBetweenShots, nFrames); err != nil {
+	if err = s.GetAllScreenshots(ctx, cfg.screen, imgSaveDir, delayBetweenShots, nFrames); err != nil {
+		cleanUpDir(ctx, imgSaveDir) // needed os.Exit does not honor deferred calls
 		log.Fatalf("failed to get screenshots: %v", err)
 	}
 
 	log.Printf("Creating animation...\n")
-	if err = animate.Animate(ctx, cfg.imgSaveDir, cfg.loop, cfg.fps); err != nil {
+	if err = animate.Animate(ctx, imgSaveDir, cfg.outputDir, cfg.loop, cfg.fps); err != nil {
+		cleanUpDir(ctx, imgSaveDir) // needed os.Exit does not honor deferred calls
 		log.Fatalf("failed to animate: %v", err)
 	}
 
-	log.Printf("Animation saved to %s/out.gif.\n Cleaning up...\n", cfg.imgSaveDir)
-	if err = cleanUpImgFiles(ctx, cfg.imgSaveDir); err != nil {
-		log.Print("failed to delete temporary screenshot files")
-	}
+	log.Printf("Animation saved to %s/out.gif.\n", cfg.outputDir)
+	log.Printf("Cleaning up temporary files...\n")
 }
 
 // calculateDelay works out the delay in 100ths of seconds needed
@@ -98,17 +103,8 @@ func calculateDelay(fps int) (int, error) {
 	return secsPart / fps, nil
 }
 
-func cleanUpImgFiles(ctx context.Context, dir string) error {
-	pattern := fmt.Sprintf("%s/*_*_*x*.png", dir)
-	matches, err := filepath.Glob(pattern)
-	if err != nil {
-		return err
+func cleanUpDir(ctx context.Context, dir string) {
+	if err := os.RemoveAll(dir); err != nil {
+		log.Printf("failed to clean up temp files: %v", err)
 	}
-
-	for _, f := range matches {
-		if err = os.Remove(f); err != nil {
-			return err
-		}
-	}
-	return nil
 }
