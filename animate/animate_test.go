@@ -25,7 +25,7 @@ func TestAnimate(t *testing.T) {
 
 	for _, c := range cases {
 		t.Run(c.name, func(s *testing.T) {
-			err := Animate(context.TODO(), "testdata", c.loop, c.fps)
+			err := Animate(context.TODO(), "testdata", "testdata", c.loop, c.fps)
 			if err != nil {
 				t.Errorf("got unexpected error: %v", err)
 			}

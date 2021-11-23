@@ -15,7 +15,7 @@ import (
 
 // Animate makes a gif out of a series of png images available in imgDir. If loop
 // is true, the animation will loop infinitely, otherwise it'll do a single loop.
-func Animate(ctx context.Context, imgDir string, loop bool, delay int) error {
+func Animate(ctx context.Context, imgDir string, outDir string, loop bool, delay int) error {
 	files, _ := filepath.Glob(fmt.Sprintf("%s/*.png", imgDir))
 
 	outGif := &gif.GIF{}
@@ -43,7 +43,7 @@ func Animate(ctx context.Context, imgDir string, loop bool, delay int) error {
 		outGif.LoopCount = 0
 	}
 
-	outPath := fmt.Sprintf("%s/out.gif", imgDir)
+	outPath := fmt.Sprintf("%s/out.gif", outDir)
 	f, err := os.OpenFile(outPath, os.O_WRONLY|os.O_CREATE, 0o600)
 	if err != nil {
 		return err
