@@ -77,7 +77,7 @@ func run(ctx context.Context, cfg config) {
 	defer cleanUpDir(ctx, imgSaveDir)
 
 	s := capture.ScreenShot{}
-	if err = s.GetAllScreenshots(ctx, cfg.screen, imgSaveDir, delayBetweenShots, nFrames); err != nil {
+	if err = s.GetAllScreenshots(ctx, cfg.screen, imgSaveDir, delayBetweenShots, nFrames, uint(cfg.widthPixels)); err != nil {
 		cleanUpDir(ctx, imgSaveDir) // needed os.Exit does not honor deferred calls
 		log.Fatalf("failed to get screenshots: %v", err)
 	}

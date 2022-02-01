@@ -16,6 +16,7 @@ type config struct {
 	loop                bool
 	screen              int
 	timeOutMinutes      int
+	widthPixels         int
 }
 
 func getConfig() (c config, err error) {
@@ -28,6 +29,7 @@ func getConfig() (c config, err error) {
 	flag.String("outputDir", ".", "the absolute path to the directory where the output gif is to be stored")
 	flag.Int("screen", 0, "the number identifying the screen that should be captured, default is the main screen = 0")
 	flag.Int("timeOutMinutes", 5, "the number of minutes until the app is shut down as a safety measure")
+	flag.Int("widthPixels", 0, "the desired width of the animation in pixels, the image will be scaled preserving aspect ratio, the original value will be used if this value is set to 0")
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
@@ -44,6 +46,7 @@ func getConfig() (c config, err error) {
 		outputDir:           v.GetString("outputDir"),
 		screen:              v.GetInt("screen"),
 		timeOutMinutes:      v.GetInt(("timeOutMinutes")),
+		widthPixels:         v.GetInt("widthPixels"),
 	}
 
 	return c, nil

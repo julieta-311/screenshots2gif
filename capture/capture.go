@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/kbinani/screenshot"
+	"github.com/nfnt/resize"
 )
 
 const dateTimeLayout = "20060102_150405"
@@ -33,10 +34,10 @@ func (s *ScreenShot) numActiveDisplays(ctx context.Context) int {
 	return screenshot.NumActiveDisplays()
 }
 
-func (s *ScreenShot) getScreensShot(ctx context.Context, screen int, frameNumber int, saveDir string) error {
+func (s *ScreenShot) getScreensShot(ctx context.Context, screen int, frameNumber int, saveDir string, width uint) error {
 	bounds := s.getDisplayBounds(ctx, screen)
 
-	img, err := s.captureRect(ctx, bounds)
+	capt, err := s.captureRect(ctx, bounds)
 	if err != nil {
 		return fmt.Errorf("failed to capture screen: %w", err)
 	}
@@ -50,6 +51,11 @@ func (s *ScreenShot) getScreensShot(ctx context.Context, screen int, frameNumber
 	}
 	defer file.Close()
 
+	img := image.Image(capt)
+	if width > 0 {
+		img = resize.Resize(width, 0, img, resize.Lanczos3)
+	}
+
 	if err := png.Encode(file, img); err != nil {
 		return fmt.Errorf("failed to encode image: %w", err)
 	}
@@ -61,7 +67,7 @@ func (s *ScreenShot) getScreensShot(ctx context.Context, screen int, frameNumber
 
 // GetAllScreenshots takes a series of nFrame screenshots with a delay between shots given by delayBetweenShots
 // and saves it to saveDir.
-func (s *ScreenShot) GetAllScreenshots(ctx context.Context, screen int, saveDir string, delayBetweenShots time.Duration, nFrames int) error {
+func (s *ScreenShot) GetAllScreenshots(ctx context.Context, screen int, saveDir string, delayBetweenShots time.Duration, nFrames int, width uint) error {
 	nDisp := s.numActiveDisplays(ctx)
 	if nDisp == 0 {
 		return fmt.Errorf("no screens found")
@@ -72,7 +78,7 @@ func (s *ScreenShot) GetAllScreenshots(ctx context.Context, screen int, saveDir 
 	}
 
 	for k := 0; k < nFrames; k++ {
-		if err := s.getScreensShot(ctx, screen, k, saveDir); err != nil {
+		if err := s.getScreensShot(ctx, screen, k, saveDir, width); err != nil {
 			return err
 		}
 		time.Sleep(delayBetweenShots)
