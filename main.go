@@ -38,6 +38,11 @@ func main() {
 		cancel()
 	}()
 
+	cfg.imgSaveDir, err = os.MkdirTemp("", "*-screenshots")
+	if err != nil {
+		log.Fatalf("failed to create temp dir: %v", err)
+	}
+
 	finished := make(chan bool)
 	go func() {
 		run(ctx, cfg)
@@ -53,6 +58,8 @@ func main() {
 		log.Println("*** Operation timed out. ***")
 	}
 
+	log.Println("Cleaning up temporary files...")
+	cleanUpDir(ctx, cfg.imgSaveDir)
 	log.Println("Goodbye.")
 }
 
@@ -70,26 +77,19 @@ func run(ctx context.Context, cfg config) {
 	delayBetweenShots := time.Duration(10) * time.Millisecond * time.Duration(animDelay)
 	nFrames := cfg.fps * cfg.durationSeconds
 
-	imgSaveDir, err := os.MkdirTemp("", "*-screenshots")
-	if err != nil {
-		log.Fatalf("failed to create temp dir: %v", err)
-	}
-	defer cleanUpDir(ctx, imgSaveDir)
-
 	s := capture.ScreenShot{}
-	if err = s.GetAllScreenshots(ctx, cfg.screen, imgSaveDir, delayBetweenShots, nFrames, uint(cfg.widthPixels)); err != nil {
-		cleanUpDir(ctx, imgSaveDir) // needed os.Exit does not honor deferred calls
+	if err = s.GetAllScreenshots(ctx, cfg.screen, cfg.imgSaveDir, delayBetweenShots, nFrames, uint(cfg.widthPixels)); err != nil {
+		cleanUpDir(ctx, cfg.imgSaveDir) // needed os.Exit does not honor deferred calls
 		log.Fatalf("failed to get screenshots: %v", err)
 	}
 
 	log.Printf("Creating animation...\n")
-	if err = animate.Animate(ctx, imgSaveDir, cfg.outputDir, cfg.loop, cfg.fps); err != nil {
-		cleanUpDir(ctx, imgSaveDir) // needed os.Exit does not honor deferred calls
+	if err = animate.Animate(ctx, cfg.imgSaveDir, cfg.outputDir, cfg.loop, cfg.fps); err != nil {
+		cleanUpDir(ctx, cfg.imgSaveDir) // needed os.Exit does not honor deferred calls
 		log.Fatalf("failed to animate: %v", err)
 	}
 
 	log.Printf("Animation saved to %s/out.gif.\n", cfg.outputDir)
-	log.Println("Cleaning up temporary files...")
 }
 
 // calculateDelay works out the delay in 100ths of seconds needed

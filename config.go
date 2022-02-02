@@ -12,6 +12,7 @@ type config struct {
 	durationSeconds     int
 	fps                 int
 	outputDir           string
+	imgSaveDir          string
 	initialSleepSeconds int
 	loop                bool
 	screen              int
