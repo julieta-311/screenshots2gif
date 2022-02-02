@@ -25,7 +25,7 @@ func main() {
 	timeOut := time.Duration(cfg.timeOutMinutes)*time.Minute + time.Second*time.Duration(cfg.initialSleepSeconds)
 	ctx, cancel := context.WithTimeout(ctx, timeOut)
 
-	log.Println("\U0001F4F7 Starting screenshots2gif \U0001F4F7\n")
+	log.Println("\U0001F4F7 Starting screenshots2gif \U0001F4F7")
 	log.Printf("Operation will time out if not done after %v minutes.\n", cfg.timeOutMinutes)
 	log.Printf("Taking screenshots to generate %d seconds long gif at %d fps.\n", cfg.durationSeconds, cfg.fps)
 	log.Printf("Selected screen: %d (main screen = 0).\n", cfg.screen)
