@@ -22,14 +22,14 @@ type config struct {
 func getConfig() (c config, err error) {
 	v := viper.New()
 
-	flag.Int("durationSeconds", 3, "how many seconds long the animation should be")
-	flag.Int("fps", 10, "the frame rate the animation should be made in")
-	flag.Int("initialSleepSeconds", 5, "the number of seconds to wait before taking the first snapshot")
-	flag.Bool("loop", true, "if the animation should loop indefinitely")
-	flag.String("outputDir", ".", "the absolute path to the directory where the output gif is to be stored")
-	flag.Int("screen", 0, "the number identifying the screen that should be captured, default is the main screen = 0")
-	flag.Int("timeOutMinutes", 5, "the number of minutes until the app is shut down as a safety measure")
-	flag.Int("widthPixels", 0, "the desired width of the animation in pixels, the image will be scaled preserving aspect ratio, the original value will be used if this value is set to 0")
+	pflag.IntP("durationSeconds", "d", 3, "how many seconds long the animation should be")
+	pflag.IntP("fps", "f", 10, "the frame rate the animation should be made in")
+	pflag.IntP("initialSleepSeconds", "s", 5, "the number of seconds to wait before taking the first snapshot")
+	pflag.BoolP("loop", "l", true, "if the animation should loop indefinitely")
+	pflag.StringP("outputDir", "o", ".", "the absolute path to the directory where the output gif is to be stored")
+	pflag.IntP("screen", "S", 0, "the number identifying the screen that should be captured, default is the main screen = 0")
+	pflag.IntP("timeOutMinutes", "t", 5, "the number of minutes until the app is shut down as a safety measure")
+	pflag.IntP("widthPixels", "w", 0, "the desired width of the animation in pixels, the image will be scaled preserving aspect ratio, the original value will be used if this value is set to 0")
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()
