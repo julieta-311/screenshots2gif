@@ -45,7 +45,10 @@ func main() {
 
 	finished := make(chan bool)
 	go func() {
-		run(ctx, cfg)
+		err := run(ctx, cfg)
+		if err != nil {
+			log.Fatalf("failed to create animation: %v", err)
+		}
 		finished <- true
 	}()
 
@@ -63,7 +66,7 @@ func main() {
 	log.Println("Goodbye.")
 }
 
-func run(ctx context.Context, cfg config) {
+func run(ctx context.Context, cfg config) error {
 	if cfg.initialSleepSeconds > 0 {
 		log.Printf("Sleeping for %v seconds before starting.\n", cfg.initialSleepSeconds)
 		time.Sleep(time.Duration(cfg.initialSleepSeconds) * time.Second)
@@ -71,7 +74,7 @@ func run(ctx context.Context, cfg config) {
 
 	animDelay, err := calculateDelay(cfg.fps)
 	if err != nil {
-		log.Fatalf("failed to calculate delay between shots: %v", err)
+		return fmt.Errorf("failed to calculate delay between shots: %v", err)
 	}
 
 	delayBetweenShots := time.Duration(10) * time.Millisecond * time.Duration(animDelay)
@@ -80,16 +83,16 @@ func run(ctx context.Context, cfg config) {
 	s := capture.ScreenShot{}
 	if err = s.GetAllScreenshots(ctx, cfg.screen, cfg.imgSaveDir, delayBetweenShots, nFrames, uint(cfg.widthPixels)); err != nil {
 		cleanUpDir(ctx, cfg.imgSaveDir) // needed os.Exit does not honor deferred calls
-		log.Fatalf("failed to get screenshots: %v", err)
+		return fmt.Errorf("failed to get screenshots: %v", err)
 	}
 
 	log.Printf("Creating animation...\n")
 	if err = animate.Animate(ctx, cfg.imgSaveDir, cfg.outputDir, cfg.loop, cfg.fps); err != nil {
 		cleanUpDir(ctx, cfg.imgSaveDir) // needed os.Exit does not honor deferred calls
-		log.Fatalf("failed to animate: %v", err)
+		return fmt.Errorf("failed to animate: %v", err)
 	}
 
-	log.Printf("Animation saved to %s/out.gif.\n", cfg.outputDir)
+	return nil
 }
 
 // calculateDelay works out the delay in 100ths of seconds needed
