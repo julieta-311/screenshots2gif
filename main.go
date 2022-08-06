@@ -61,8 +61,6 @@ func main() {
 		log.Println("*** Operation timed out. ***")
 	}
 
-	log.Println("Cleaning up temporary files...")
-	cleanUpDir(ctx, cfg.imgSaveDir)
 	log.Println("Goodbye.")
 }
 
@@ -81,14 +79,16 @@ func run(ctx context.Context, cfg config) error {
 	nFrames := cfg.fps * cfg.durationSeconds
 
 	s := capture.ScreenShot{}
+	defer func() {
+		log.Printf("Cleaning up temporary files...")
+		cleanUpDir(ctx, cfg.imgSaveDir)
+	}()
 	if err = s.GetAllScreenshots(ctx, cfg.screen, cfg.imgSaveDir, delayBetweenShots, nFrames, uint(cfg.widthPixels)); err != nil {
-		cleanUpDir(ctx, cfg.imgSaveDir) // needed os.Exit does not honor deferred calls
 		return fmt.Errorf("failed to get screenshots: %v", err)
 	}
 
 	log.Printf("Creating animation...\n")
 	if err = animate.Animate(ctx, cfg.imgSaveDir, cfg.outputDir, cfg.loop, cfg.fps); err != nil {
-		cleanUpDir(ctx, cfg.imgSaveDir) // needed os.Exit does not honor deferred calls
 		return fmt.Errorf("failed to animate: %v", err)
 	}
 
