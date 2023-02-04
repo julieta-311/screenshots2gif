@@ -1,6 +1,6 @@
 module github.com/julieta-311/screenshots2gif
 
-go 1.17
+go 1.20
 
 require (
 	github.com/kbinani/screenshot v0.0.0-20210720154843-7d3a670d8329
