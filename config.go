@@ -28,9 +28,20 @@ func getConfig() (c config, err error) {
 	pflag.IntP("initialSleepSeconds", "s", 5, "the number of seconds to wait before taking the first snapshot")
 	pflag.BoolP("loop", "l", true, "if the animation should loop indefinitely")
 	pflag.StringP("outputDir", "o", ".", "the absolute path to the directory where the output gif is to be stored")
-	pflag.IntP("screen", "S", 0, "the number identifying the screen that should be captured, default is the main screen = 0")
+	pflag.IntP(
+		"screen",
+		"S",
+		0,
+		"the number identifying the screen that should be captured, default is the main screen = 0",
+	)
 	pflag.IntP("timeOutMinutes", "t", 5, "the number of minutes until the app is shut down as a safety measure")
-	pflag.IntP("widthPixels", "w", 0, "the desired width of the animation in pixels, the image will be scaled preserving aspect ratio, the original value will be used if this value is set to 0")
+	pflag.IntP(
+		"widthPixels",
+		"w",
+		0,
+		"the desired width of the animation in pixels, the image will be scaled"+
+			"preserving aspect ratio, the original value will be used if this value is set to 0",
+	)
 
 	pflag.CommandLine.AddGoFlagSet(flag.CommandLine)
 	pflag.Parse()

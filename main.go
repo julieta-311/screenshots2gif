@@ -83,7 +83,14 @@ func run(ctx context.Context, cfg config) error {
 		log.Printf("Cleaning up temporary files...")
 		cleanUpDir(ctx, cfg.imgSaveDir)
 	}()
-	if err = s.GetAllScreenshots(ctx, cfg.screen, cfg.imgSaveDir, delayBetweenShots, nFrames, uint(cfg.widthPixels)); err != nil {
+	if err = s.GetAllScreenshots(
+		ctx,
+		cfg.screen,
+		cfg.imgSaveDir,
+		delayBetweenShots,
+		nFrames,
+		uint(cfg.widthPixels),
+	); err != nil {
 		return fmt.Errorf("failed to get screenshots: %v", err)
 	}
 
