@@ -34,7 +34,13 @@ func (s *ScreenShot) numActiveDisplays(ctx context.Context) int {
 	return screenshot.NumActiveDisplays()
 }
 
-func (s *ScreenShot) getScreensShot(ctx context.Context, screen int, frameNumber int, saveDir string, width uint) error {
+func (s *ScreenShot) getScreensShot(
+	ctx context.Context,
+	screen int,
+	frameNumber int,
+	saveDir string,
+	width uint,
+) error {
 	bounds := s.getDisplayBounds(ctx, screen)
 
 	capt, err := s.captureRect(ctx, bounds)
@@ -67,7 +73,14 @@ func (s *ScreenShot) getScreensShot(ctx context.Context, screen int, frameNumber
 
 // GetAllScreenshots takes a series of nFrame screenshots with a delay between shots given by delayBetweenShots
 // and saves it to saveDir.
-func (s *ScreenShot) GetAllScreenshots(ctx context.Context, screen int, saveDir string, delayBetweenShots time.Duration, nFrames int, width uint) error {
+func (s *ScreenShot) GetAllScreenshots(
+	ctx context.Context,
+	screen int,
+	saveDir string,
+	delayBetweenShots time.Duration,
+	nFrames int,
+	width uint,
+) error {
 	nDisp := s.numActiveDisplays(ctx)
 	if nDisp == 0 {
 		return fmt.Errorf("no screens found")
