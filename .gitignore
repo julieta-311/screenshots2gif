@@ -16,3 +16,4 @@
 
 # files generated while testing
 animate/testdata/*.gif
+out.gif
